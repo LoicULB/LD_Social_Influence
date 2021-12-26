@@ -1,25 +1,49 @@
-
+import gym
+import numpy as np
+from ActorCriticAgent import Agent
 from harvest import HarvestEnv
+from utils import plot_learning_curve
+from gym import wrappers
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    env = HarvestEnv(num_agents=1)
-    env.reset()
+    env = HarvestEnv(num_agents=2)
+    agent = Agent(alpha=1e-5, n_actions=env.action_space.n)
+    n_games = 18
+    # uncomment this line and do a mkdir tmp && mkdir video if you want to
+    # record video of the agent playing the game.
+    #env = wrappers.Monitor(env, 'tmp/video', video_callable=lambda episode_id: True, force=True)
+    filename = 'cartpole_1e-5_1024x512_1800games.png'
 
-    env.setup_agents()
+    figure_file = 'plots/' + filename
 
+    best_score = env.reward_range[0]
+    score_history = []
+    load_checkpoint = False
 
-    print("orientation agent 0: ",env.agents["agent-0"].orientation) # TEST
+    if load_checkpoint:
+        agent.load_models()
 
+    for i in range(n_games):
+        observation = env.reset()
+        done = False
+        score = 0
+        while not done:
+            action = agent.choose_action(observation)
+            observation_, reward, done, info = env.step(action)
+            score += reward
+            if not load_checkpoint:
+                agent.learn(observation, reward, observation_, done)
+            observation = observation_
+        score_history.append(score)
+        avg_score = np.mean(score_history[-100:])
 
-    # render the current env
-    env.render("current-env at time 0")
+        if avg_score > best_score:
+            best_score = avg_score
+            if not load_checkpoint:
+                agent.save_models()
 
-    dic = {"agent-0": 3}
+        print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score)
 
-
-    env.step(dic)
-    # render the current env
-    env.render("current-env at time 1")
-
+    if not load_checkpoint:
+        x = [i+1 for i in range(n_games)]
+        #plot_learning_curve(x, score_history, figure_file)
