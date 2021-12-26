@@ -2,13 +2,24 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 from ActorCriticModel import ActorCriticNetwork
+from agent import HarvestAgent
+from agent import HARVEST_ACTIONS
 
-class Agent:
-    def __init__(self, alpha=0.0003, gamma=0.99, n_actions=2):
+class Agent(HarvestAgent):
+    def __init__(self, agent_id, start_pos, start_orientation, full_map, view_len,
+                 alpha=0.0003, gamma=0.99
+                 ):
+        super().__init__(
+            agent_id,
+            start_pos,
+            start_orientation,
+            full_map,
+            view_len
+        )
         self.gamma = gamma
-        self.n_actions = n_actions
-        self.action = None
-        self.action_space = [i for i in range(self.n_actions)]
+        self.n_actions = len(HARVEST_ACTIONS)
+        self.action = None # TODO to handle
+        self.action_space =  HARVEST_ACTIONS
 
         self.actor_critic = ActorCriticNetwork(n_actions=n_actions)
 
@@ -36,6 +47,7 @@ class Agent:
         
     def learn(self, state, reward, state_, done):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
+        # state_ is the new state.
         state_ = tf.convert_to_tensor([state_], dtype=tf.float32)
         reward = tf.convert_to_tensor(reward, dtype=tf.float32) # not fed to NN
         with tf.GradientTape(persistent=True) as tape:

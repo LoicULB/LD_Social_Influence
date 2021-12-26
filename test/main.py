@@ -7,7 +7,8 @@ from gym import wrappers
 
 if __name__ == '__main__':
     env = HarvestEnv(num_agents=2)
-    agent = Agent(alpha=1e-5, n_actions=env.action_space.n)
+    
+    agent = Agent(alpha=1e-5, )
     n_games = 18
     # uncomment this line and do a mkdir tmp && mkdir video if you want to
     # record video of the agent playing the game.
