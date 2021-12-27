@@ -5,31 +5,32 @@ from harvest import HarvestEnv
 from utils import plot_learning_curve
 from gym import wrappers
 
-def make_all_agent_play(observations, neuronal_agents ): # : Agent
+def make_all_agent_play(observations, A2C_agents): # : Agent
     actions = {}
 
-    for i in range(len(observations)):
-        agent = neuronal_agents[i]                          # --> agent i
-        observation = observations["agent-%i"%i]['cur_obs'] # --> field of vision of the ith agent
+    for i in range(len(A2C_agents)):
+        agent = A2C_agents[i]                                   # --> agent i
+        observation = observations["agent-%d"%i]['curr_obs']     # --> field of vision of the ith agent
 
-        action = agent.choose_action(observation) # should be ok
-        actions["agent-%i"%i] = action
-    new_observations, rewards, dones, infos = env.step(actions) #should be okay to
+        action = agent.choose_action(observation)  # should be ok
+        actions["agent-%d"%i] = action
+    new_observations, rewards, dones, infos = env.step(actions)  # should be okay to
 
     return new_observations, rewards, dones, infos
 
-def make_all_agents_learn(observations, new_observations, rewards, dones, infos):
-    score_step = 0 # we need to return it and to add it to the function called make_all_agent_learn
-    for i in range(len(observations)):
-        reward = rewards["agent-%i"%i]
+
+def make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents):
+    score_step = 0  # we need to return it and to add it to the function called make_all_agent_learn
+    for i in range(len(A2C_agents)):
+        reward = rewards["agent-%d"%i]
         score_step += reward
 
-        observation = observations["agent-%i"%i]['cur_obs']
-        new_observation = new_observations["agent-%i"%i]['cur_obs']
-        done = dones["agent-%i"%i]
-        agent = neuronal_agents[i]
+        observation = observations["agent-%d"%i]['curr_obs']
+        new_observation = new_observations["agent-%d"%i]['curr_obs']
+        done = dones["agent-%d"%i]
+        agent = A2C_agents[i]
         agent.learn(observation, reward, new_observation, done)
-    return  new_observations
+    return score_step
 
 if __name__ == '__main__':
     # define all the parameters
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     A2C_agents = []
 
 
-    for i in range(number_agents):
+    for game in range(number_agents):
         A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C agents
 
 
@@ -56,31 +57,43 @@ if __name__ == '__main__':
     figure_file = 'plots/' + filename
 
     best_score = env.reward_range[0]
-    score_history = []
+    games_score_history = []
+
 
     if load_checkpoint:
-        for i in range(number_agents):
-            A2C_agents[i].load_models()
+        for game in range(number_agents):
+            A2C_agents[game].load_models()
 
-    for i in range(number_games):
+    games_score_steps = []
+    for game in range(number_games):
         observations = env.reset()  # should be ok
         done = False
-        score = 0
-        # TODO handle the done
-        while not done:
+        accumulative_collective_score = 0
 
-            make_all_agent_play(observations, neuronal_agents)
-            observation = observation_
-        score_history.append(score)
-        avg_score = np.mean(score_history[-100:])
+        collective_score_step = []
+        for step in range(0, number_steps):
+            # TODO handle the done
+            new_observations, rewards, dones, infos = make_all_agent_play(observations, A2C_agents)
+            collective_score_step[step] = make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents)
+            # update
+            observation = new_observations
+            accumulative_collective_score += collective_score_step
+
+        # a game is finish here
+        # save data
+        games_score_steps[game] = collective_score_step
+        avg_score = np.mean(collective_score_step[-100:])
+        games_score_history.append(accumulative_collective_score)
+
 
         if avg_score > best_score:
             best_score = avg_score
             if not load_checkpoint:
-                agent.save_models()
+                for agent in range(number_agents):
+                    A2C_agents[agent].save_models()
 
-        print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score)
+        print('game ', game, 'score %.1f' % accumulative_collective_score, 'avg_score %.1f' % avg_score)
 
     if not load_checkpoint:
         x = [i + 1 for i in range(number_games)]
-        #plot_learning_curve(x, score_history, figure_file)
+        plot_learning_curve(x, games_score_history, figure_file)

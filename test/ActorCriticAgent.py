@@ -29,6 +29,7 @@ class Agent():
         log_prob = action_probabilities.log_prob(action)
         self.action = action
 
+
         return action.numpy()[0]
 
     def save_models(self):
