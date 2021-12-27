@@ -15,7 +15,8 @@ def make_all_agent_play(observations, neuronal_agents ): # : Agent
         action = agent.choose_action(observation) # should be ok
         actions["agent-%i"%i] = action
     new_observations, rewards, dones, infos = env.step(actions) #should be okay to
-    return   new_observations, rewards, dones, infos
+
+    return new_observations, rewards, dones, infos
 
 def make_all_agents_learn(observations, new_observations, rewards, dones, infos):
     score_step = 0 # we need to return it and to add it to the function called make_all_agent_learn
@@ -31,27 +32,38 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos)
     return  new_observations
 
 if __name__ == '__main__':
-    env = HarvestEnv(num_agents=2)
+    # define all the parameters
+    number_steps = 1000
+    number_agents = 2
+    number_games = 18
+    alpha = 1e-5
+    gamma = 0.99
+    load_checkpoint = False
 
-    agent = Agent(alpha=1e-5, ) # TODO define list of neunal agents
-    n_games = 18
+
+    env = HarvestEnv(num_agents=number_agents)
+    A2C_agents = []
+
+
+    for i in range(number_agents):
+        A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C agents
+
+
     # uncomment this line and do a mkdir tmp && mkdir video if you want to
     # record video of the agent playing the game.
     #env = wrappers.Monitor(env, 'tmp/video', video_callable=lambda episode_id: True, force=True)
-    filename = 'cartpole_1e-5_1024x512_1800games.png'
-
+    filename = 'harvest_%d_%d_%f_%f_%d_steps.png'%(number_agents, number_games, alpha, gamma, number_steps)
     figure_file = 'plots/' + filename
 
     best_score = env.reward_range[0]
     score_history = []
-    load_checkpoint = False
 
     if load_checkpoint:
-        agent.load_models()
+        for i in range(number_agents):
+            A2C_agents[i].load_models()
 
-    for i in range(n_games):
-        observations = env.reset() # should be ok
-        print(observations)
+    for i in range(number_games):
+        observations = env.reset()  # should be ok
         done = False
         score = 0
         # TODO handle the done
@@ -70,5 +82,5 @@ if __name__ == '__main__':
         print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score)
 
     if not load_checkpoint:
-        x = [i+1 for i in range(n_games)]
+        x = [i + 1 for i in range(number_games)]
         #plot_learning_curve(x, score_history, figure_file)
