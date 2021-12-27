@@ -14,7 +14,7 @@ class Agent():
         self.gamma = gamma
         self.n_actions = len(HARVEST_ACTIONS)
         self.action = None  # TODO to handle
-        self.action_space = HARVEST_ACTIONS.keys
+        self.action_space = list(HARVEST_ACTIONS.keys())
 
         self.actor_critic = ActorCriticNetwork(n_actions=self.n_actions)
 
@@ -23,10 +23,10 @@ class Agent():
 
     def choose_action(self, observation):
         # convert observation to a single dimension array
-        observation = np.array(observation)
+        #observation = np.array(observation)
         observation = observation.flatten()
         #
-        state = tf.convert_to_tensor([observation])
+        state = tf.convert_to_tensor([observation]) 
         _, probs = self.actor_critic(state)
 
         action_probabilities = tfp.distributions.Categorical(probs=probs)
@@ -34,8 +34,8 @@ class Agent():
         #log_prob = action_probabilities.log_prob(action)
         self.action = action
 
-
-        return action.numpy()[0]
+        np_act = action.numpy()
+        return action.numpy()[0]-1
 
     def save_models(self):
         print('... saving models ...')
