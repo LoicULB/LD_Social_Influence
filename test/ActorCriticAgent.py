@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
@@ -21,6 +22,10 @@ class Agent():
 
 
     def choose_action(self, observation):
+        # convert observation to a single dimension array
+        observation = np.array(observation)
+        observation = observation.flatten()
+        #
         state = tf.convert_to_tensor([observation])
         _, probs = self.actor_critic(state)
 
