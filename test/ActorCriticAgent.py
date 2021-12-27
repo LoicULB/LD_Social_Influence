@@ -13,8 +13,8 @@ class Agent():
         
         self.gamma = gamma
         self.n_actions = len(HARVEST_ACTIONS)
-        self.action = None # TODO to handle
-        self.action_space =  HARVEST_ACTIONS.keys
+        self.action = None  # TODO to handle
+        self.action_space = HARVEST_ACTIONS.keys
 
         self.actor_critic = ActorCriticNetwork(n_actions=self.n_actions)
 
@@ -31,7 +31,7 @@ class Agent():
 
         action_probabilities = tfp.distributions.Categorical(probs=probs)
         action = action_probabilities.sample()
-        log_prob = action_probabilities.log_prob(action)
+        #log_prob = action_probabilities.log_prob(action)
         self.action = action
 
 
@@ -46,6 +46,12 @@ class Agent():
         self.actor_critic.load_weights(self.actor_critic.checkpoint_file)
         
     def learn(self, state, reward, state_, done):
+        # convert state to a single dimension array
+        state = np.array(state)
+        state = state.flatten()
+        state_ = np.array(state_)
+        state_ = state_.flatten()
+
         state = tf.convert_to_tensor([state], dtype=tf.float32)
         # state_ is the new state.
         state_ = tf.convert_to_tensor([state_], dtype=tf.float32)

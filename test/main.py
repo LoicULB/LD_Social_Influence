@@ -74,10 +74,10 @@ if __name__ == '__main__':
         for step in range(0, number_steps):
             # TODO handle the done
             new_observations, rewards, dones, infos = make_all_agent_play(observations, A2C_agents)
-            collective_score_step[step] = make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents)
+            collective_score_step.append(make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents))
             # update
             observation = new_observations
-            accumulative_collective_score += collective_score_step
+            accumulative_collective_score += collective_score_step[step]
 
         # a game is finish here
         # save data
