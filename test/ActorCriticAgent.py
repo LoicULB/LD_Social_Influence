@@ -2,26 +2,20 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 from ActorCriticModel import ActorCriticNetwork
-from agent import HarvestAgent
+
 from agent import HARVEST_ACTIONS
 
-class Agent(HarvestAgent):
-    def __init__(self, agent_id, start_pos, start_orientation, full_map, view_len,
+class Agent():
+    def __init__(self, 
                  alpha=0.0003, gamma=0.99
                  ):
-        super().__init__(
-            agent_id,
-            start_pos,
-            start_orientation,
-            full_map,
-            view_len
-        )
+        
         self.gamma = gamma
         self.n_actions = len(HARVEST_ACTIONS)
         self.action = None # TODO to handle
-        self.action_space =  HARVEST_ACTIONS
+        self.action_space =  HARVEST_ACTIONS.keys
 
-        self.actor_critic = ActorCriticNetwork(n_actions=n_actions)
+        self.actor_critic = ActorCriticNetwork(n_actions=self.n_actions)
 
         self.actor_critic.compile(optimizer=Adam(learning_rate=alpha))
 

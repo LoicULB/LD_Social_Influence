@@ -3,7 +3,8 @@ from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 from ActorCriticModel import ActorCriticNetwork
 
-class Agent:
+
+class Agent():
     def __init__(self, alpha=0.0003, gamma=0.99, n_actions=2):
         self.gamma = gamma
         self.n_actions = n_actions
