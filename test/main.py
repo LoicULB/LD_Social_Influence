@@ -5,35 +5,34 @@ from harvest import HarvestEnv
 from utils import plot_learning_curve
 from gym import wrappers
 
-def make_all_agent_play(observations, neuronal_agents : Agent ):
+def make_all_agent_play(observations, neuronal_agents ): # : Agent
     actions = {}
-    
+
     for i in range(len(observations)):
-        observation = observations[f"agent-{i}"]['cur_obs']
-        agent = neuronal_agents[i]
-        
+        agent = neuronal_agents[i]                          # --> agent i
+        observation = observations["agent-%i"%i]['cur_obs'] # --> field of vision of the ith agent
+
         action = agent.choose_action(observation) # should be ok
-        actions[f"agent-{i}"] = action
+        actions["agent-%i"%i] = action
     new_observations, rewards, dones, infos = env.step(actions) #should be okay to
-    return   new_observations, rewards, dones, infos  
-def make_all_agents_learn(new_observation, rewards, dones, infos):    
+    return   new_observations, rewards, dones, infos
+
+def make_all_agents_learn(observations, new_observations, rewards, dones, infos):
     score_step = 0 # we need to return it and to add it to the function called make_all_agent_learn
     for i in range(len(observations)):
-        reward = rewards[f"agent-{i}"]
+        reward = rewards["agent-%i"%i]
         score_step += reward
-        
-        if not load_checkpoint:
-            observation = observations[f"agent-{i}"]['cur_obs']
-            new_observation = new_observations[f"agent-{i}"]['cur_obs']
-            done = dones[f"agent-{i}"]
-            agent = neuronal_agents[i]
-            
-            agent.learn(observation, reward, new_observation, done)
+
+        observation = observations["agent-%i"%i]['cur_obs']
+        new_observation = new_observations["agent-%i"%i]['cur_obs']
+        done = dones["agent-%i"%i]
+        agent = neuronal_agents[i]
+        agent.learn(observation, reward, new_observation, done)
     return  new_observations
-    
+
 if __name__ == '__main__':
     env = HarvestEnv(num_agents=2)
-    
+
     agent = Agent(alpha=1e-5, ) # TODO define list of neunal agents
     n_games = 18
     # uncomment this line and do a mkdir tmp && mkdir video if you want to
@@ -52,11 +51,12 @@ if __name__ == '__main__':
 
     for i in range(n_games):
         observations = env.reset() # should be ok
+        print(observations)
         done = False
         score = 0
         # TODO handle the done
         while not done:
-            
+
             make_all_agent_play(observations, neuronal_agents)
             observation = observation_
         score_history.append(score)
