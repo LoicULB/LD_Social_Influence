@@ -7,6 +7,9 @@ from A2C.ActorCriticModel import ActorCriticNetwork
 from social_dilemma.env.agent import HARVEST_ACTIONS
 
 class Agent():
+    """
+    A2C Agent
+    """
     def __init__(self, 
                  alpha=0.0003, gamma=0.99
                  ):
@@ -22,7 +25,11 @@ class Agent():
 
 
     def choose_action(self, observation):
-        
+        """
+        Choose the action with highest estimated probability by the A2C neuronal network
+        :param observation: the observation of the agent
+        :return: the action of the agent (between 0 and 7)
+        """
         observation = observation.flatten()
         
         state = tf.convert_to_tensor([observation]) 
@@ -30,10 +37,8 @@ class Agent():
         
         proba = probs.numpy()[0]
         action = proba.argmax()
-        
         self.action = action
 
-        
         return action
 
     def save_models(self):
