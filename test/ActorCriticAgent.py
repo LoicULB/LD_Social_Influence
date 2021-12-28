@@ -22,20 +22,19 @@ class Agent():
 
 
     def choose_action(self, observation):
-        # convert observation to a single dimension array
-        #observation = np.array(observation)
+        
         observation = observation.flatten()
-        #
+        
         state = tf.convert_to_tensor([observation]) 
         _, probs = self.actor_critic(state)
-
-        action_probabilities = tfp.distributions.Categorical(probs=probs)
-        action = action_probabilities.sample()
-        #log_prob = action_probabilities.log_prob(action)
+        
+        proba = probs.numpy()[0]
+        action = proba.argmax()
+        
         self.action = action
 
-        np_act = action.numpy()
-        return action.numpy()[0]-1
+        
+        return action
 
     def save_models(self):
         print('... saving models ...')
