@@ -1,6 +1,6 @@
 import numpy as np
 from A2C.ActorCriticAgent import Agent
-from social_dilemma.env.harvest import HarvestEnv
+from social_dilemma.environment.harvest import HarvestEnv
 from run.utils import plot_learning_curve
 
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # uncomment this line and do a mkdir tmp && mkdir video if you want to
     # record video of the agent playing the game.
-    #env = wrappers.Monitor(env, 'tmp/video', video_callable=lambda episode_id: True, force=True)
+    #environment = wrappers.Monitor(environment, 'tmp/video', video_callable=lambda episode_id: True, force=True)
     filename = 'harvest_%d_%d_%f_%f_%d_steps.png'%(number_agents, number_games, alpha, gamma, number_steps)
     figure_file = 'plots/' + filename
 

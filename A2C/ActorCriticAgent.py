@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 from A2C.ActorCriticModel import ActorCriticNetwork
 
-from social_dilemma.env.agent import HARVEST_ACTIONS
+from social_dilemma.environment.agent import HARVEST_ACTIONS
 
 class Agent():
     """
