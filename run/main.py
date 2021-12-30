@@ -2,6 +2,7 @@ import numpy as np
 from A2C.ActorCriticAgent import Agent
 from social_dilemma.environment.harvest import HarvestEnv
 from run.utils import plot_learning_curve
+from run.utils import plot_curve
 
 
 def make_all_agent_play(observations, A2C_agents): # : Agent
@@ -17,6 +18,11 @@ def make_all_agent_play(observations, A2C_agents): # : Agent
 
     return new_observations, rewards, dones, infos
 
+def create_agents(alpha, gamma, number_agents):
+    A2C_agents = []
+    for game in range(number_agents):
+        A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C agents
+    return A2C_agents
 
 def make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents):
     score_step = 0  # we need to return it and to add it to the function called make_all_agent_learn
@@ -33,21 +39,15 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
 
 if __name__ == '__main__':
     # define all the parameters
-    number_steps = 10 #1000
+    number_steps = 20
     number_agents = 2
-    number_games = 5 # 18
+    number_games = 5
     alpha = 1e-5
     gamma = 0.99
     load_checkpoint = False
 
 
     env = HarvestEnv(num_agents=number_agents)
-    A2C_agents = []
-
-
-    for game in range(number_agents):
-        A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C agents
-
 
     # uncomment this line and do a mkdir tmp && mkdir video if you want to
     # record video of the agent playing the game.
@@ -58,20 +58,22 @@ if __name__ == '__main__':
     best_score = env.reward_range[0]
     games_score_history = []
 
-
+    """
+    A2C_agents = []
+    A2C_agents = create_agents(alpha, gamma, number_agents)
     if load_checkpoint:
-        for game in range(number_agents):
-            A2C_agents[game].load_models()
-
+        for i in range(number_agents):
+            A2C_agents[i].load_models()
+    """
     games_score_steps = []
+    #else: # training
     for game in range(number_games):
-        observations = env.reset()  # should be ok
-        done = False
-        accumulative_collective_score = 0
 
+        observations = env.reset()  # should be ok
+        A2C_agents = create_agents(alpha, gamma, number_agents)
+        accumulative_collective_score = 0
         collective_score_step = []
         for step in range(0, number_steps):
-
             new_observations, rewards, dones, infos = make_all_agent_play(observations, A2C_agents)
             collective_score_step.append(make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents))
             # update
@@ -92,7 +94,12 @@ if __name__ == '__main__':
                     A2C_agents[agent].save_models()
 
         print('game ', game, 'score %.1f' % accumulative_collective_score, 'avg_score %.1f' % avg_score)
+    name_curve = "collective mean reward"
+    fig_file_test = os.path.join(os.getcwd(), "plots", "name_curve")
+    plot_curve(games_score_steps, fig_file_test)
 
+    """
     if not load_checkpoint:
         x = [i + 1 for i in range(number_games)]
         plot_learning_curve(x, games_score_history, figure_file)
+    """
