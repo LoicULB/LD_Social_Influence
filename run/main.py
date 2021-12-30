@@ -33,9 +33,9 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
 
 if __name__ == '__main__':
     # define all the parameters
-    number_steps = 1000
+    number_steps = 10 #1000
     number_agents = 2
-    number_games = 18
+    number_games = 5 # 18
     alpha = 1e-5
     gamma = 0.99
     load_checkpoint = False
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
         collective_score_step = []
         for step in range(0, number_steps):
-            # TODO handle the done
+
             new_observations, rewards, dones, infos = make_all_agent_play(observations, A2C_agents)
             collective_score_step.append(make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents))
             # update
@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
         # a game is finish here
         # save data
-        games_score_steps[game] = collective_score_step
+        games_score_steps.append(collective_score_step)
         avg_score = np.mean(collective_score_step[-100:])
         games_score_history.append(accumulative_collective_score)
 
