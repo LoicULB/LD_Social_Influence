@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from A2C.ActorCriticAgent import Agent
 from social_dilemma.environment.harvest import HarvestEnv
@@ -38,10 +40,13 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
     return score_step
 
 if __name__ == '__main__':
+    # TODO render how the agents act
+    # TODO
+
     # define all the parameters
-    number_steps = 20
+    number_steps = 1000
     number_agents = 2
-    number_games = 5
+    number_games = 2
     alpha = 1e-5
     gamma = 0.99
     load_checkpoint = False
@@ -83,19 +88,22 @@ if __name__ == '__main__':
         # a game is finish here
         # save data
         games_score_steps.append(collective_score_step)
-        avg_score = np.mean(collective_score_step[-100:])
+        avg_score = np.mean(collective_score_step[-min(100, number_steps):])
         games_score_history.append(accumulative_collective_score)
 
+        print('game ', game, 'score %.1f' % accumulative_collective_score, 'avg_score %.1f' % avg_score)
 
         if avg_score > best_score:
             best_score = avg_score
             if not load_checkpoint:
+                print('... saving models ...')
                 for agent in range(number_agents):
                     A2C_agents[agent].save_models()
 
-        print('game ', game, 'score %.1f' % accumulative_collective_score, 'avg_score %.1f' % avg_score)
+
+
     name_curve = "collective mean reward"
-    fig_file_test = os.path.join(os.getcwd(), "plots", "name_curve")
+    fig_file_test = os.path.join(os.getcwd(), "plots", name_curve)
     plot_curve(games_score_steps, fig_file_test)
 
     """

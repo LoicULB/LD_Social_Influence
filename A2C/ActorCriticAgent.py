@@ -42,7 +42,6 @@ class Agent():
         return action
 
     def save_models(self):
-        print('... saving models ...')
         self.actor_critic.save_weights(self.actor_critic.checkpoint_file)
 
     def load_models(self):
