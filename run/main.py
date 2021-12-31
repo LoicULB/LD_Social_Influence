@@ -43,7 +43,6 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
 
 if __name__ == '__main__':
     # TODO render how the agents act
-    # TODO
 
     # define all the parameters
     number_steps = 100
@@ -72,6 +71,7 @@ if __name__ == '__main__':
         for i in range(number_agents):
             A2C_agents[i].load_models()
     """
+
     games_score_steps = []
     #else: # training
     for game in range(number_games):
