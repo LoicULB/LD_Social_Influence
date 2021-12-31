@@ -58,11 +58,11 @@ class A2CAgent:
 
         self.Save_Path = 'Models'
         self.state_size = (self.REM_STEP, self.ROWS, self.COLS)
-        self.image_memory = np.zeros(self.state_size)
+       # self.image_memory = np.zeros(self.state_size)
 
-        if not os.path.exists(self.Save_Path): os.makedirs(self.Save_Path)
-        self.path = '{}_A2C_{}'.format(self.env_name, self.lr)
-        self.Model_name = os.path.join(self.Save_Path, self.path)
+        #if not os.path.exists(self.Save_Path): os.makedirs(self.Save_Path)
+        #self.path = '{}_A2C_{}'.format(self.env_name, self.lr)
+        #self.Model_name = os.path.join(self.Save_Path, self.path)
 
         # Create Actor-Critic network model
         self.Actor, self.Critic = AgentModel(input_shape=self.state_size, action_space=self.action_size, lr=self.lr)
@@ -122,13 +122,15 @@ class A2CAgent:
         self.Actor.save(self.Model_name + '_Actor.h5')
         # self.Critic.save(self.Model_name + '_Critic.h5')
 
-    pylab.figure(figsize=(18, 9))
+    #pylab.figure(figsize=(18, 9))
+
 
     def PlotModel(self, score, episode):
         self.scores.append(score)
         self.episodes.append(episode)
         self.average.append(sum(self.scores[-50:]) / len(self.scores[-50:]))
         if str(episode)[-2:] == "00":  # much faster than episode % 100
+            """
             pylab.plot(self.episodes, self.scores, 'b')
             pylab.plot(self.episodes, self.average, 'r')
             pylab.ylabel('Score', fontsize=18)
@@ -137,9 +139,11 @@ class A2CAgent:
                 pylab.savefig(self.path + ".png")
             except OSError:
                 pass
+            """
 
         return self.average[-1]
 
+    """
     def imshow(self, image, rem_step=0):
         cv2.imshow(self.Model_name + str(rem_step), image[rem_step, ...])
         if cv2.waitKey(25) & 0xFF == ord("q"):
@@ -178,16 +182,16 @@ class A2CAgent:
         # self.imshow(self.image_memory,3)
 
         return np.expand_dims(self.image_memory, axis=0)
-
+    """
     def reset(self):
         frame = self.env.reset()
         """for i in range(self.REM_STEP):
-            state = self.GetImage(frame)
-        return state"""
+            state = self.GetImage(frame)"""
+        return frame
 
     def step(self, action):
         next_state, reward, done, info = self.env.step(action)
-        next_state = self.GetImage(next_state)
+        #next_state = self.GetImage(next_state)
         return next_state, reward, done, info
 
     def run(self):
