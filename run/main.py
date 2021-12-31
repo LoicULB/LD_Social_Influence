@@ -89,6 +89,7 @@ if __name__ == '__main__':
         # save data
         games_score_steps.append(collective_score_step)
         avg_score = np.mean(collective_score_step[-min(100, number_steps):])
+        #avg_score = np.mean(collective_score_step)
         games_score_history.append(accumulative_collective_score)
 
         print('game ', game, 'score %.1f' % accumulative_collective_score, 'avg_score %.1f' % avg_score)
