@@ -5,6 +5,8 @@ from A2C.ActorCriticAgent import Agent
 from social_dilemma.environment.harvest import HarvestEnv
 from run.utils import plot_learning_curve
 from run.utils import plot_curve
+from numpy import asarray
+import numpy as np
 
 
 def make_all_agent_play(observations, A2C_agents): # : Agent
@@ -44,7 +46,7 @@ if __name__ == '__main__':
     # TODO
 
     # define all the parameters
-    number_steps = 1000
+    number_steps = 100
     number_agents = 2
     number_games = 2
     alpha = 1e-5
@@ -102,7 +104,8 @@ if __name__ == '__main__':
                     A2C_agents[agent].save_models()
 
 
-
+    total_games_scores = asarray(games_score_steps)
+    mean = np.mean(total_games_scores, axis=0)
     name_curve = "collective mean reward"
     fig_file_test = os.path.join(os.getcwd(), "plots", name_curve)
     plot_curve(games_score_steps, fig_file_test)
