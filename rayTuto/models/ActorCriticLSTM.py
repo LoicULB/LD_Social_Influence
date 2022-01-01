@@ -5,8 +5,7 @@ from ray.rllib.models.tf.recurrent_net import RecurrentNetwork
 from ray.rllib.utils import try_import_tf
 from ray.rllib.utils.annotations import override
 
-tf = try_import_tf()
-
+import tensorflow as tf
 
 class ActorCriticLSTM(RecurrentNetwork):
     def __init__(

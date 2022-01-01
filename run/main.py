@@ -37,6 +37,7 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
         done = dones["agent-%d"%i]
         agent = A2C_agents[i]
         agent.learn(observation, reward, new_observation, done)
+        print("Coucou")
     return score_step
 
 if __name__ == '__main__':
@@ -47,8 +48,8 @@ if __name__ == '__main__':
     number_steps = 1000
     number_agents = 2
     number_games = 2
-    alpha = 1e-5
-    gamma = 0.99
+    alpha = 0.0001
+    gamma = 0.95
     load_checkpoint = False
 
 
