@@ -18,7 +18,7 @@ learning_rate = 3e-4
 # Constants
 GAMMA = 0.99
 num_steps = 300
-max_episodes = 1000
+max_episodes = 100
 
 
 def a2c(env):
