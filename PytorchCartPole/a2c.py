@@ -19,6 +19,8 @@ learning_rate = 3e-4
 GAMMA = 0.99
 num_steps = 300
 max_episodes = 1000
+
+
 def a2c(env):
     num_inputs = env.observation_space.shape[0]
     num_outputs = env.action_space.n
@@ -47,7 +49,7 @@ def a2c(env):
 
             append_values(log_prob, log_probs, reward, rewards, value, values)
 
-            entropy_term += entropy #update entropy
+            entropy_term += entropy  # update entropy
             state = new_state
 
             if done or steps == num_steps - 1:

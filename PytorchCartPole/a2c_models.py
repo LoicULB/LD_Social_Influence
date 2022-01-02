@@ -19,6 +19,8 @@ class ActorCritic(nn.Module):
         self.actor_linear2 = nn.Linear(hidden_size, num_actions)
 
     def forward(self, state):
+        # state = state.flatten()  # TODO are we sure?
+
         state = Variable(torch.from_numpy(state).float().unsqueeze(0))
         value = F.relu(self.critic_linear1(state))
         value = self.critic_linear2(value)

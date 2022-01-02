@@ -9,7 +9,12 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import pandas as pd
-from a2c import  a2c
-if __name__ == "__main__":
-    env = gym.make("CartPole-v0")
-    a2c(env)
+
+# hyperparameters
+hidden_size = 256
+learning_rate = 3e-4
+
+# Constants
+GAMMA = 0.99
+num_steps = 300
+max_episodes = 3000
