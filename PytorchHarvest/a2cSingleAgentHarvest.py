@@ -16,9 +16,10 @@ hidden_size = 256
 learning_rate = 3e-4
 
 # Constants
-GAMMA = 0.99
-num_steps = 300
-max_episodes = 100
+GAMMA = 0.9999
+num_steps = 150
+max_episodes = 1
+render_env = True
 
 
 def a2c(env):
@@ -41,7 +42,9 @@ def a2c(env):
         state = env.reset()
         state = state["agent-0"]["curr_obs"]
 
-        for steps in range(num_steps):
+        if render_env:
+            env.render('tmp/img/harvest_initial_step')
+        for step in range(num_steps):
             value, policy_dist = actor_critic.forward(state)
             value = value.detach().numpy()[0, 0]
             dist = policy_dist.detach().numpy()
@@ -49,6 +52,9 @@ def a2c(env):
             action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
             action_dic = {"agent-0": action}
             new_states, reward_dic, dones, _ = env.step(action_dic)
+            print(action)
+            if render_env:
+                env.render('tmp/img/harvest_step_%d' % (step))
 
             # extract from the dic
             new_state = new_states["agent-0"]["curr_obs"]
@@ -60,10 +66,10 @@ def a2c(env):
             entropy_term += entropy  # update entropy
             state = new_state
 
-            if done or steps == num_steps - 1:
-                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, steps)
+            if done or step == num_steps - 1:
+                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
                 if episode % 10 == 0:
-                    print_episode_state(average_lengths, episode, rewards, steps)
+                    print_episode_state(average_lengths, episode, rewards, step)
                 break
 
         # compute Q values
