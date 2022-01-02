@@ -66,7 +66,7 @@ if __name__ == "__main__":
               }
               """
 
-    trainer = agents.a3c.A2CTrainer(env="CartPole-v0", config=config)
+    trainer = agents.a3c.A2CTrainer(env="harvest", config=config)
 
     for i in range (5):
         results = trainer.train()

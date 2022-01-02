@@ -8,7 +8,7 @@ import pylab
 import numpy as np
 from keras.models import Model, load_model
 from keras.layers import Input, Dense, Lambda, Add, Conv2D, Flatten
-from keras.optimizers import Adam, RMSprop
+from tensorflow.keras.optimizers import Adam, RMSprop
 from keras import backend as K
 import cv2
 
