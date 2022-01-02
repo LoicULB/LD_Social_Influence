@@ -18,7 +18,7 @@ learning_rate = 3e-4
 # Constants
 GAMMA = 0.99
 num_steps = 300
-max_episodes = 1000
+max_episodes = 50
 
 
 def a2c(env):
@@ -32,6 +32,8 @@ def a2c(env):
     average_lengths = []
     all_rewards = []
     entropy_term = 0
+    experiment_data = []
+
 
     for episode in range(max_episodes):
         log_probs = []
@@ -55,6 +57,7 @@ def a2c(env):
             if done or steps == num_steps - 1:
                 Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, steps)
                 if episode % 10 == 0:
+
                     print_episode_state(average_lengths, episode, rewards, steps)
                 break
 
@@ -83,6 +86,7 @@ def a2c(env):
 
     plot_rewards_evolution(all_rewards, smoothed_rewards)
     plot_episode_length_evolution(all_lengths, average_lengths)
+    print(smoothed_rewards)
 
 
 def before_env_step(dist, num_outputs, policy_dist):

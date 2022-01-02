@@ -10,16 +10,17 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import pandas as pd
 from a2c_models import ActorCritic
-
+from Hyperparams import get_first_batch
+from Hyperparams import get_papers_batch, get_third_batch
+from collections import Counter
 # hyperparameters
-hidden_size = 32  # 256
-learning_rate = 0.00136  # 1e-2
+hidden_size, learning_rate = get_third_batch()
 
 # Constants
 GAMMA = 0.99
-num_steps = 150
-max_episodes = 1
-render_env = True
+num_steps = 300
+max_episodes = 50
+render_env = False
 
 
 def a2c(env):
@@ -33,8 +34,11 @@ def a2c(env):
     average_lengths = []
     all_rewards = []
     entropy_term = 0
-
+    history_rewards = []
+    full_actions_history = []
     for episode in range(max_episodes):
+        actions_history= []
+
         log_probs = []
         values = []
         rewards = []
@@ -50,9 +54,10 @@ def a2c(env):
             dist = policy_dist.detach().numpy()
 
             action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
+            actions_history.append(action)
             action_dic = {"agent-0": action}
             new_states, reward_dic, dones, _ = env.step(action_dic)
-            print("action", action)  # TODO test
+            #print("action", action)  # TODO test
             if render_env:
                 env.render('tmp/img/harvest_step_%d' % (step))
 
@@ -69,7 +74,10 @@ def a2c(env):
             if done or step == num_steps - 1:
                 Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
                 if episode % 10 == 0:
-                    print_episode_state(average_lengths, episode, rewards, step)
+                    current_episode_actions = Counter(actions_history)
+                    full_actions_history.append(current_episode_actions)
+                    print(current_episode_actions)
+                    print_episode_state(episode, rewards, history_rewards)
                 break
 
         # compute Q values
@@ -94,7 +102,7 @@ def a2c(env):
 
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
-
+    return history_rewards,
     #plot_rewards_evolution(all_rewards, smoothed_rewards)
     #plot_episode_length_evolution(all_lengths, average_lengths)
 
@@ -102,6 +110,8 @@ def a2c(env):
 def before_env_step(dist, num_outputs, policy_dist):
     action = np.random.choice(num_outputs, p=np.squeeze(dist))
     log_prob = torch.log(policy_dist.squeeze(0)[action])
+    #could resolve the log divided by zero error
+    #dist = np.where(dist > 0.0000000001, dist, 0.00000001)
     entropy = -np.sum(np.mean(dist) * np.log(dist))
     return action, entropy, log_prob
 
@@ -121,13 +131,10 @@ def end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_sta
     return Qval
 
 
-def print_episode_state(average_lengths, episode, rewards, steps):
-    sys.stdout.write("episode: {}, reward: {}, total length: {}, average length: {} \n".format(episode,
-                                                                                               np.sum(
-                                                                                                   rewards),
-                                                                                               steps,
-                                                                                               average_lengths[
-                                                                                                   -1]))
+def print_episode_state(episode, rewards, history_rewards):
+    rewards_episode = np.sum( rewards)
+    history_rewards.append(rewards_episode)
+    sys.stdout.write("episode: {}, reward: {}\n".format(episode,   rewards_episode ))
 
 
 def get_smoothed_rewards(all_rewards):
