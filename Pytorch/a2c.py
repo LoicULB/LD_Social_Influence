@@ -47,9 +47,7 @@ def a2c(env):
             entropy = -np.sum(np.mean(dist) * np.log(dist))
             new_state, reward, done, _ = env.step(action)
 
-            rewards.append(reward)
-            values.append(value)
-            log_probs.append(log_prob)
+            append_values(log_prob, log_probs, reward, rewards, value, values)
             entropy_term += entropy
             state = new_state
 
@@ -84,6 +82,12 @@ def a2c(env):
 
     plot_rewards_evolution(all_rewards, smoothed_rewards)
     plot_episode_length_evolution(all_lengths, average_lengths)
+
+
+def append_values(log_prob, log_probs, reward, rewards, value, values):
+    rewards.append(reward)
+    values.append(value)
+    log_probs.append(log_prob)
 
 
 def end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, steps):
