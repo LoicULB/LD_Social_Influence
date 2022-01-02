@@ -12,11 +12,11 @@ import pandas as pd
 from a2c_models import ActorCritic
 
 # hyperparameters
-hidden_size = 256
-learning_rate = 3e-4
+hidden_size = 32  # 256
+learning_rate = 0.00136  # 1e-2
 
 # Constants
-GAMMA = 0.9999
+GAMMA = 0.99
 num_steps = 150
 max_episodes = 1
 render_env = True
@@ -52,7 +52,7 @@ def a2c(env):
             action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
             action_dic = {"agent-0": action}
             new_states, reward_dic, dones, _ = env.step(action_dic)
-            print(action)
+            print("action", action)  # TODO test
             if render_env:
                 env.render('tmp/img/harvest_step_%d' % (step))
 
@@ -95,8 +95,8 @@ def a2c(env):
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
 
-    plot_rewards_evolution(all_rewards, smoothed_rewards)
-    plot_episode_length_evolution(all_lengths, average_lengths)
+    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+    #plot_episode_length_evolution(all_lengths, average_lengths)
 
 
 def before_env_step(dist, num_outputs, policy_dist):
