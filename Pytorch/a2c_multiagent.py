@@ -19,15 +19,34 @@ learning_rate = 3e-4
 GAMMA = 0.99
 num_steps = 300
 max_episodes = 1000
-def a2c(env):
+
+
+def create_all_agents(nb_agents, num_inputs, num_outputs):
+    agents = []
+    for i in range(nb_agents):
+        agents.append(ActorCritic(num_inputs, num_outputs, hidden_size))
+
+    return agents
+def make_all_agents_act(agents: ActorCritic, states, num_outputs):
+    agent_dict = {}
+    for i in range(len(agents)):
+        agent = agents[i]
+        observation = states[f"agent-{i}"]['curr_obs']
+
+        value, policy_dist = agent.forward(observation)
+        value = value.detach().numpy()[0, 0]
+        dist = policy_dist.detach().numpy()
+        action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
+        agent_dict[f"agent-{i}"] = action
+def a2c(env, nb_agents):
     num_inputs = env.observation_space.shape[0]
     num_outputs = env.action_space.n
 
     actor_critic = ActorCritic(num_inputs, num_outputs, hidden_size)
+    agents = create_all_agents(nb_agents, num_inputs, num_outputs)
     ac_optimizer = optim.Adam(actor_critic.parameters(), lr=learning_rate)
 
-    all_lengths = []
-    average_lengths = []
+
     all_rewards = []
     entropy_term = 0
 
@@ -38,16 +57,16 @@ def a2c(env):
 
         state = env.reset()
         for steps in range(num_steps):
-            value, policy_dist = actor_critic.forward(state)
-            value = value.detach().numpy()[0, 0]
-            dist = policy_dist.detach().numpy()
+            make_all_agents_act(agents, state, num_outputs)
 
-            action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
+
+
+
             new_state, reward, done, _ = env.step(action)
 
             append_values(log_prob, log_probs, reward, rewards, value, values)
 
-            entropy_term += entropy #update entropy
+            entropy_term += entropy  # update entropy
             state = new_state
 
             if done or steps == num_steps - 1:
@@ -80,7 +99,7 @@ def a2c(env):
     smoothed_rewards = get_smoothed_rewards(all_rewards)
 
     plot_rewards_evolution(all_rewards, smoothed_rewards)
-    plot_episode_length_evolution(all_lengths, average_lengths)
+
 
 
 def before_env_step(dist, num_outputs, policy_dist):
