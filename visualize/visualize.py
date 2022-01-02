@@ -45,7 +45,7 @@ def make_all_agents_learn(observations, new_observations, rewards, dones, infos,
 if __name__ == '__main__':
 
     # define all the parameters
-    number_steps = 100
+    number_steps = 50
     number_agents = 2
     number_games = 1
     alpha = 1e-5
