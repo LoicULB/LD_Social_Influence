@@ -14,17 +14,12 @@ from Hyperparams import get_first_batch
 from Hyperparams import get_papers_batch, get_third_batch
 from collections import Counter
 # hyperparameters
-hidden_size, learning_rate = get_third_batch()
-
-# Constants
-GAMMA = 0.99
-num_steps = 300
-max_episodes = 50
-render_env = False
 
 
-def a2c(env):
-    num_inputs = 675  # env.observation_space["curr_obs"].shape[0]
+
+
+def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, learning_rate=0.00136, hidden_size=18):
+    num_inputs = 675  # env.observation_space["curr_obs"].shape[0] # is the dimension of the input (15*15*3) = 675
     num_outputs = env.action_space.n
 
     actor_critic = ActorCritic(num_inputs, num_outputs, hidden_size)
@@ -37,7 +32,7 @@ def a2c(env):
     history_rewards = []
     full_actions_history = []
     for episode in range(max_episodes):
-        actions_history= []
+        actions_history = []
 
         log_probs = []
         values = []
@@ -46,7 +41,7 @@ def a2c(env):
         state = env.reset()
         state = state["agent-0"]["curr_obs"]
 
-        if render_env:
+        if render_env and episode == 29:
             env.render('tmp/img/harvest_initial_step')
         for step in range(num_steps):
             value, policy_dist = actor_critic.forward(state)
@@ -57,8 +52,7 @@ def a2c(env):
             actions_history.append(action)
             action_dic = {"agent-0": action}
             new_states, reward_dic, dones, _ = env.step(action_dic)
-            #print("action", action)  # TODO test
-            if render_env:
+            if render_env and episode == 29:
                 env.render('tmp/img/harvest_step_%d' % (step))
 
             # extract from the dic
@@ -73,11 +67,11 @@ def a2c(env):
 
             if done or step == num_steps - 1:
                 Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
-                if episode % 10 == 0:
+                if episode % 5 == 0:  # TODO it was 10
                     current_episode_actions = Counter(actions_history)
                     full_actions_history.append(current_episode_actions)
-                    print(current_episode_actions)
-                    print_episode_state(episode, rewards, history_rewards)
+                    # print(current_episode_actions)
+                    # print_episode_state(episode, rewards, history_rewards)
                 break
 
         # compute Q values
@@ -100,9 +94,14 @@ def a2c(env):
         ac_loss.backward()
         ac_optimizer.step()
 
+    sum_rewards = np.sum(all_rewards)
+
+    #print("all_rewards: ", all_rewards)
+    #print("sum all_rewards: ", sum_rewards)
+
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
-    return history_rewards,
+    return history_rewards, sum_rewards
     #plot_rewards_evolution(all_rewards, smoothed_rewards)
     #plot_episode_length_evolution(all_lengths, average_lengths)
 
