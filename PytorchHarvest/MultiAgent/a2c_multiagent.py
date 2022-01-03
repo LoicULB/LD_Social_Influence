@@ -1,15 +1,12 @@
 import sys
 import torch
 
-import gym
 import numpy as np
-import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-from torch.autograd import Variable
+
 import matplotlib.pyplot as plt
 import pandas as pd
-from a2c_models import ActorCritic
+from PytorchHarvest.a2c_models import ActorCritic
 
 
 def make_all_agents_act(agent: ActorCritic, states, num_outputs, env, agents_log_probs,
@@ -72,35 +69,42 @@ def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=1000, max_episodes=30, render_en
             dic_states = new_state_dic
 
             if step == num_steps - 1:
-                Qvals = end_episode(actor_critic, new_state_dic)
+                Qvals_agent = end_episode(actor_critic, new_state_dic)
                 #if episode % 10 == 0:
                     #  print_episode_state(average_lengths, episode, rewards, step)
                 break
 
+        make_all_agents_learn(GAMMA, ac_optimizer, entropies, Qvals_agent, agents_values, agents_rewards, agents_log_probs)
+
+    # Plot results
+    #smoothed_rewards = get_smoothed_rewards(all_rewards)
+
+    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+
+
+def make_all_agents_learn(GAMMA, ac_optimizer, entropies, Qvals_agent, agents_values, agents_rewards, agents_log_probs):
+    for i in range (len(agents_values)):
+        rewards = agents_rewards[i]
+        values = agents_values[i]
+        Qval = Qvals_agent[i]
+        log_probs = agents_log_probs[i]
         # compute Q values
+        entropy_term = entropies[i]
         Qvals = np.zeros_like(values)
         for t in reversed(range(len(rewards))):
             Qval = rewards[t] + GAMMA * Qval
             Qvals[t] = Qval
-
         # update actor critic
-        values = torch.FloatTensor(values)
-        Qvals = torch.FloatTensor(Qvals)
-        log_probs = torch.stack(log_probs)
-
-        advantage = Qvals - values
-        actor_loss = (-log_probs * advantage).mean()
+        valuesTorch = torch.FloatTensor(values)
+        QvalsTorch = torch.FloatTensor(Qvals)
+        log_probsTorch = torch.stack(log_probs)
+        advantage = QvalsTorch - valuesTorch
+        actor_loss = (-log_probsTorch * advantage).mean()
         critic_loss = 0.5 * advantage.pow(2).mean()
         ac_loss = actor_loss + critic_loss + 0.001 * entropy_term
-
         ac_optimizer.zero_grad()
-        ac_loss.backward()
+        ac_loss.backward(retain_graph=True)
         ac_optimizer.step()
-
-    # Plot results
-    smoothed_rewards = get_smoothed_rewards(all_rewards)
-
-    plot_rewards_evolution(all_rewards, smoothed_rewards)
 
 
 def append_empty_list_for_every_agents(list_to_append, nb_agents):
@@ -124,7 +128,8 @@ def append_values(log_prob, log_probs, reward, rewards, value, values):
 def end_episode(actor_critic, new_state):
     Qvals = []
     for i in range(len(new_state)):
-        Qval, _ = actor_critic.forward(new_state)
+        state = new_state[f"agent-{i}"]["curr_obs"]
+        Qval, _ = actor_critic.forward(state)
         Qval = Qval.detach().numpy()[0, 0]
         Qvals.append(Qval)
     return Qvals
