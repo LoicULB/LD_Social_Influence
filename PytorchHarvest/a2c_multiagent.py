@@ -39,7 +39,7 @@ def make_all_agents_act(agent: ActorCritic, states, num_outputs, env, agents_log
     return new_state_dic, reward_dic, done_dic
 
 
-def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=300, max_episodes=30, render_env=False, learning_rate=0.01,
+def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=1000, max_episodes=30, render_env=False, learning_rate=0.01,
         hidden_size=64):
     num_inputs = 675  # env.observation_space.shape[0] # is the dimension of the input (15*15*3)
     num_outputs = env.action_space.n
@@ -72,9 +72,9 @@ def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=300, max_episodes=30, render_env
             dic_states = new_state_dic
 
             if step == num_steps - 1:
-                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
-                if episode % 10 == 0:
-                    print_episode_state(average_lengths, episode, rewards, step)
+                Qvals = end_episode(actor_critic, new_state_dic)
+                #if episode % 10 == 0:
+                    #  print_episode_state(average_lengths, episode, rewards, step)
                 break
 
         # compute Q values
@@ -121,13 +121,13 @@ def append_values(log_prob, log_probs, reward, rewards, value, values):
     log_probs.append(log_prob)
 
 
-def end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, steps):
-    Qval, _ = actor_critic.forward(new_state)
-    Qval = Qval.detach().numpy()[0, 0]
-    all_rewards.append(np.sum(rewards))
-    all_lengths.append(steps)
-    average_lengths.append(np.mean(all_lengths[-10:]))
-    return Qval
+def end_episode(actor_critic, new_state):
+    Qvals = []
+    for i in range(len(new_state)):
+        Qval, _ = actor_critic.forward(new_state)
+        Qval = Qval.detach().numpy()[0, 0]
+        Qvals.append(Qval)
+    return Qvals
 
 
 def print_episode_state(average_lengths, episode, rewards, steps):
