@@ -52,6 +52,7 @@ def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, lea
             actions_history.append(action)
             action_dic = {"agent-0": action}
             new_states, reward_dic, dones, _ = env.step(action_dic)
+
             if render_env and episode == 29:
                 env.render('tmp/img/harvest_step_%d' % (step))
 

@@ -11,68 +11,70 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from a2c_models import ActorCritic
 
-# hyperparameters
-hidden_size = 256
-learning_rate = 3e-4
 
-# Constants
-GAMMA = 0.99
-num_steps = 300
-max_episodes = 1000
-
-
-def create_all_agents(nb_agents, num_inputs, num_outputs):
-    agents = []
-    for i in range(nb_agents):
-        agents.append(ActorCritic(num_inputs, num_outputs, hidden_size))
-
-    return agents
-def make_all_agents_act(agents: ActorCritic, states, num_outputs):
-    agent_dict = {}
-    for i in range(len(agents)):
-        agent = agents[i]
+def make_all_agents_act(agent: ActorCritic, states, num_outputs, env, agents_log_probs,
+                        agents_rewards, agents_values, entropies):
+    agents_dict_actions = {}
+    for i in range(len(states)):
         observation = states[f"agent-{i}"]['curr_obs']
-
         value, policy_dist = agent.forward(observation)
         value = value.detach().numpy()[0, 0]
         dist = policy_dist.detach().numpy()
         action, entropy, log_prob = before_env_step(dist, num_outputs, policy_dist)
-        agent_dict[f"agent-{i}"] = action
-def a2c(env, nb_agents):
-    num_inputs = env.observation_space.shape[0]
+        agents_dict_actions[f"agent-{i}"] = action
+
+        #  update entropy
+        entropies[i] += entropy
+
+        # appends the values
+        agents_log_probs[i].append(log_prob)
+        agents_values[i].append(value)
+
+    new_state_dic, reward_dic, done_dic, _ = env.step(agents_dict_actions)
+
+    for i in range(len(states)):
+        reward_i = reward_dic[f"agent-{i}"]
+        agents_rewards[i].append(reward_i)
+
+    return new_state_dic, reward_dic, done_dic
+
+
+def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=300, max_episodes=30, render_env=False, learning_rate=0.01,
+        hidden_size=64):
+    num_inputs = 675  # env.observation_space.shape[0] # is the dimension of the input (15*15*3)
     num_outputs = env.action_space.n
 
     actor_critic = ActorCritic(num_inputs, num_outputs, hidden_size)
-    agents = create_all_agents(nb_agents, num_inputs, num_outputs)
     ac_optimizer = optim.Adam(actor_critic.parameters(), lr=learning_rate)
 
-
+    entropies = [0] * nb_agents
     all_rewards = []
     entropy_term = 0
 
     for episode in range(max_episodes):
-        log_probs = []
-        values = []
-        rewards = []
+        agents_log_probs = []
+        append_empty_list_for_every_agents(agents_log_probs, nb_agents)
 
-        state = env.reset()
-        for steps in range(num_steps):
-            make_all_agents_act(agents, state, num_outputs)
+        agents_rewards = []
+        append_empty_list_for_every_agents(agents_rewards, nb_agents)
 
+        agents_values = []
+        append_empty_list_for_every_agents(agents_values, nb_agents)
 
+        dic_states = env.reset()
 
+        for step in range(num_steps):
+            new_state_dic, reward_dic, done_dic = make_all_agents_act(actor_critic, dic_states,
+                                                                      num_outputs, env, agents_log_probs,
+                                                                      agents_rewards, agents_values, entropies)
 
-            new_state, reward, done, _ = env.step(action)
+            #  entropy_term += entropy  # update entropy
+            dic_states = new_state_dic
 
-            append_values(log_prob, log_probs, reward, rewards, value, values)
-
-            entropy_term += entropy  # update entropy
-            state = new_state
-
-            if done or steps == num_steps - 1:
-                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, steps)
+            if step == num_steps - 1:
+                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
                 if episode % 10 == 0:
-                    print_episode_state(average_lengths, episode, rewards, steps)
+                    print_episode_state(average_lengths, episode, rewards, step)
                 break
 
         # compute Q values
@@ -100,6 +102,10 @@ def a2c(env, nb_agents):
 
     plot_rewards_evolution(all_rewards, smoothed_rewards)
 
+
+def append_empty_list_for_every_agents(list_to_append, nb_agents):
+    for i in range(nb_agents):
+        list_to_append.append([])
 
 
 def before_env_step(dist, num_outputs, policy_dist):

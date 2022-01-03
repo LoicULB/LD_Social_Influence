@@ -15,6 +15,7 @@ from a2cSingleAgentHarvest import a2c
 from social_dilemma.environment.harvest import HarvestEnv
 
 if __name__ == "__main__":
+
     # Constants
     GAMMA = 0.99
     num_steps = 300
