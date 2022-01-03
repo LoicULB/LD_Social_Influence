@@ -12,7 +12,6 @@ if __name__ == "__main__":
     num_steps = 300
     max_episodes = 60
     render_env = False
-
     hidden_size, learning_rate = get_7_batch()
 
     repetition = 10
@@ -24,9 +23,9 @@ if __name__ == "__main__":
                                    render_env=render_env,
                                    learning_rate=learning_rate, hidden_size=hidden_size)
         sums_rewards.append(sum_rewards)
-        print("repetition ", i, ": ", sum_rewards)
+        print("repetition ", i, " sum_rewards: ", sum_rewards)
 
-    print("total mean: ", np.mean(sums_rewards))
+    print("mean sum all rewards: ", np.mean(sums_rewards))
 
     '''
     with open('tuning_results/results.txt', 'w') as f:
