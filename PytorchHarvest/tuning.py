@@ -9,12 +9,12 @@ if __name__ == "__main__":
 
     # Constants
     GAMMA = 0.99
-    num_steps = 300
-    max_episodes = 60
+    num_steps = 100
+    max_episodes = 1000
     render_env = False
-    hidden_size, learning_rate = get_7_batch()
+    hidden_size, learning_rate = get_6_batch()
 
-    repetition = 10
+    repetition = 3
 
     sums_rewards = []
     for i in range(0, repetition):

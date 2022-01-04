@@ -67,14 +67,15 @@ def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, lea
             state = new_state
 
             if done or step == num_steps - 1:
-                Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
-                if episode % 5 == 0:  # TODO it was 10
-                    current_episode_actions = Counter(actions_history)
-                    full_actions_history.append(current_episode_actions)
+
                     # print(current_episode_actions)
                     # print_episode_state(episode, rewards, history_rewards)
                 break
-
+        Qval = end_episode(actor_critic, all_lengths, all_rewards, average_lengths, new_state, rewards, step)
+        if episode % 10 == 0:  # TODO it was 10
+            current_episode_actions = Counter(actions_history)
+            print(f"Episode {episode} : {current_episode_actions}")
+            full_actions_history.append(current_episode_actions)
         # compute Q values
         Qvals = np.zeros_like(values)
         for t in reversed(range(len(rewards))):
@@ -102,9 +103,10 @@ def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, lea
 
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
-    return history_rewards, sum_rewards
-    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+    plot_rewards_evolution(all_rewards, smoothed_rewards)
     #plot_episode_length_evolution(all_lengths, average_lengths)
+
+    return history_rewards, sum_rewards
 
 
 def before_env_step(dist, num_outputs, policy_dist):
