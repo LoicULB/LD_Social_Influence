@@ -20,6 +20,7 @@ from collections import Counter
 
 def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, learning_rate=0.00136, hidden_size=18):
     num_inputs = 675  # env.observation_space["curr_obs"].shape[0] # is the dimension of the input (15*15*3) = 675
+
     num_outputs = env.action_space.n
 
     actor_critic = ActorCritic(num_inputs, num_outputs, hidden_size)
@@ -103,7 +104,7 @@ def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, lea
 
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
-    plot_rewards_evolution(all_rewards, smoothed_rewards)
+    plot_rewards_evolution(all_rewards, smoothed_rewards, GAMMA, num_steps, max_episodes, learning_rate, hidden_size)
     #plot_episode_length_evolution(all_lengths, average_lengths)
 
     return history_rewards, sum_rewards
@@ -145,7 +146,9 @@ def get_smoothed_rewards(all_rewards):
     return smoothed_rewards
 
 
-def plot_episode_length_evolution(all_lengths, average_lengths):
+def plot_episode_length_evolution(all_lengths, average_lengths, GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
+
+
     plt.plot(all_lengths)
     plt.plot(average_lengths)
     plt.xlabel('Episode')
@@ -153,7 +156,9 @@ def plot_episode_length_evolution(all_lengths, average_lengths):
     plt.show()
 
 
-def plot_rewards_evolution(all_rewards, smoothed_rewards):
+def plot_rewards_evolution(all_rewards, smoothed_rewards,GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
+    plt.title(
+        f"G : {GAMMA} | n steps : {num_steps} | epi : {max_episodes} | lr : {learning_rate} | hs : {hidden_size}")
     plt.plot(all_rewards)
     plt.plot(smoothed_rewards)
     plt.plot()

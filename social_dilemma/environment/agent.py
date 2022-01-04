@@ -155,7 +155,7 @@ class Agent(object):
 
 
 HARVEST_ACTIONS = BASE_ACTIONS.copy()
-HARVEST_ACTIONS.update({7: "FIRE"})  # Fire a penalty beam
+#HARVEST_ACTIONS.update({7: "FIRE"})  # Fire a penalty beam
 
 
 class HarvestAgent(Agent):
