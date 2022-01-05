@@ -84,8 +84,8 @@ def a2c(env):
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
 
-    plot_rewards_evolution(all_rewards, smoothed_rewards)
-    plot_episode_length_evolution(all_lengths, average_lengths)
+    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+    #plot_episode_length_evolution(all_lengths, average_lengths)
     print(smoothed_rewards)
 
 
