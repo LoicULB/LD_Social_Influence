@@ -183,4 +183,5 @@ def plot_rewards_evolution(all_rewards, smoothed_rewards):
     plt.plot()
     plt.xlabel('Episode')
     plt.ylabel('Reward')
+    plt.title("accumulative reward")
     plt.show()

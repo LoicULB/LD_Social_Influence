@@ -103,10 +103,11 @@ def a2c(env, GAMMA=0.99, num_steps=300, max_episodes=30, render_env = False, lea
 
     # Plot results
     smoothed_rewards = get_smoothed_rewards(all_rewards)
-    plot_rewards_evolution(all_rewards, smoothed_rewards)
+    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+    plot_rewards_evolution(all_rewards, smoothed_rewards, GAMMA, num_steps, max_episodes, learning_rate, hidden_size)
     #plot_episode_length_evolution(all_lengths, average_lengths)
 
-    return history_rewards, sum_rewards
+    return history_rewards, sum_rewards, all_rewards
 
 
 def before_env_step(dist, num_outputs, policy_dist):
@@ -154,6 +155,16 @@ def plot_episode_length_evolution(all_lengths, average_lengths):
 
 
 def plot_rewards_evolution(all_rewards, smoothed_rewards):
+    plt.plot(all_rewards)
+    plt.plot(smoothed_rewards)
+    plt.plot()
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.show()
+
+def plot_rewards_evolution(all_rewards, smoothed_rewards, GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
+    plt.title(
+        f"Gamma : {GAMMA} | n steps : {num_steps} \n learning rate : {learning_rate} | hidden size : {hidden_size}")
     plt.plot(all_rewards)
     plt.plot(smoothed_rewards)
     plt.plot()
