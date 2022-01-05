@@ -10,8 +10,8 @@ if __name__ == "__main__":
     # Constants
     GAMMA = 0.99
     num_steps = 100
-    max_episodes = 31
-    render_env = True
+    max_episodes = 300
+    render_env = False
     hidden_size, learning_rate = get_7_batch()
     num_agents = 2
     repetition = 10

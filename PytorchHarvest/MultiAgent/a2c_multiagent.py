@@ -31,11 +31,13 @@ def make_all_agents_act(agents: List[ActorCritic], states, num_outputs, env, age
 
     new_state_dic, reward_dic, done_dic, _ = env.step(agents_dict_actions)
 
+    sum_agents_reward = 0
     for i in range(len(states)):
         reward_i = reward_dic[f"agent-{i}"]
         agents_rewards[i].append(reward_i)
+        sum_agents_reward += reward_i
 
-    return new_state_dic, reward_dic, done_dic
+    return new_state_dic, reward_dic, done_dic, sum_agents_reward
 
 
 def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=1000, max_episodes=30, render_env=False, learning_rate=0.01,
@@ -52,10 +54,11 @@ def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=1000, max_episodes=30, render_en
         optimizer_list.append(ac_optimizer)
 
     entropies = [0] * nb_agents
-    all_rewards = []
+    all_agents_episodes_rewards = []
     entropy_term = 0
 
     for episode in range(max_episodes):
+        accumulative_sum_agents_reward = 0
         agents_log_probs = []
         append_empty_list_for_every_agents(agents_log_probs, nb_agents)
 
@@ -66,33 +69,40 @@ def a2c(env, nb_agents=4, GAMMA=0.99, num_steps=1000, max_episodes=30, render_en
         append_empty_list_for_every_agents(agents_values, nb_agents)
 
         dic_states = env.reset()
-        if render_env and episode == 29:
+        if render_env and episode == max_episodes - 1:
             env.render('tmp/img/harvest_initial_step')
         for step in range(num_steps):
-            new_state_dic, reward_dic, done_dic = make_all_agents_act(actor_critic_list, dic_states,
-                                                                      num_outputs, env, agents_log_probs,
-                                                                      agents_rewards, agents_values, entropies)
+            new_state_dic, reward_dic, done_dic, sum_agents_reward = make_all_agents_act(actor_critic_list, dic_states,
+                                                                                         num_outputs, env,
+                                                                                         agents_log_probs,
+                                                                                         agents_rewards, agents_values,
+                                                                                         entropies)
+
+            accumulative_sum_agents_reward += sum_agents_reward
 
             #  entropy_term += entropy  # update entropy
             dic_states = new_state_dic
-            if render_env and episode == 29:
+            if render_env and episode == max_episodes - 1:
                 env.render('tmp/img/harvest_step_%d' % (step))
             if step == num_steps - 1:
                 Qvals_agent = end_episode(actor_critic_list, new_state_dic)
-                #if episode % 10 == 0:
-                    #  print_episode_state(average_lengths, episode, rewards, step)
+                all_agents_episodes_rewards.append(accumulative_sum_agents_reward)
+                # if episode % 10 == 0:
+                #  print_episode_state(average_lengths, episode, rewards, step)
                 break
 
-        make_all_agents_learn(GAMMA, optimizer_list, entropies, Qvals_agent, agents_values, agents_rewards, agents_log_probs)
+        make_all_agents_learn(GAMMA, optimizer_list, entropies, Qvals_agent, agents_values, agents_rewards,
+                              agents_log_probs)
 
     # Plot results
-    #smoothed_rewards = get_smoothed_rewards(all_rewards)
+    smoothed_rewards = get_smoothed_rewards(all_agents_episodes_rewards)
 
-    #plot_rewards_evolution(all_rewards, smoothed_rewards)
+    plot_rewards_evolution(all_agents_episodes_rewards, smoothed_rewards)
 
 
-def make_all_agents_learn(GAMMA, ac_optimizer_list, entropies, Qvals_agent, agents_values, agents_rewards, agents_log_probs):
-    for i in range (len(agents_values)):
+def make_all_agents_learn(GAMMA, ac_optimizer_list, entropies, Qvals_agent, agents_values, agents_rewards,
+                          agents_log_probs):
+    for i in range(len(agents_values)):
         rewards = agents_rewards[i]
         values = agents_values[i]
         Qval = Qvals_agent[i]
@@ -134,7 +144,7 @@ def append_values(log_prob, log_probs, reward, rewards, value, values):
     log_probs.append(log_prob)
 
 
-def end_episode(actor_critic_list , new_state):
+def end_episode(actor_critic_list, new_state):
     Qvals = []
     for i in range(len(new_state)):
         state = new_state[f"agent-{i}"]["curr_obs"]
