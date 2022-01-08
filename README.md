@@ -1,11 +1,13 @@
 # LD_Social_Influence
 
-##Introduction
+## Introduction
 This project is an attempt to reproduce a scientific paper on "Social Influence as Intrinsic Motivation for Deep 
-Reinforcement Learning" by : __should add the authors__
-##Structure
+Reinforcement Learning" by : should add the authors
+
+## Structure
+
 The code is divided into three folder :
-###Social_dilemma
+### Social_dilemma
 All the files used to simulate the same Harvest Environment as the paper
 ### Run
 The files that we will use to train our agents
