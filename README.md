@@ -22,7 +22,9 @@ To be able to run our multiple programs : follow the instructions
 Now, either create a new virtual environment via Pycharm or other IDEA that have the same functionality or you can do it 
 manually like the following :
 > python3 -m venv LD_A2C_Env \
+> . LD_A2C_Env/bin/activate \
 > pip install -r requirements.txt
+
 
 Now you can launch all our implementions that do not have dependency with the original paper's code.
 Read the Structure section to see which python file to execute depending on what you want to do.
