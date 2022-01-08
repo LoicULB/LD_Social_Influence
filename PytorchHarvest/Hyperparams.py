@@ -30,8 +30,8 @@ def get_5_batch():
     return hidden_size, learning_rate
 
 def get_6_batch():
-    hidden_size = 64
-    learning_rate = 0.0001 #try 0.028
+    hidden_size = 32
+    learning_rate = 0.001 #try 0.028
     return hidden_size, learning_rate
 
 def get_7_batch():
