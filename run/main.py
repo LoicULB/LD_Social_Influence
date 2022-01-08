@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from A2C.ActorCriticAgent import Agent
+from A2C_Phil.ActorCriticAgent import Agent
 from social_dilemma.environment.harvest import HarvestEnv
 from run.utils import plot_learning_curve
 from run.utils import plot_curve
@@ -25,7 +25,7 @@ def make_all_agent_play(observations, A2C_agents): # : Agent
 def create_agents(alpha, gamma, number_agents):
     A2C_agents = []
     for game in range(number_agents):
-        A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C agents
+        A2C_agents.append(Agent(alpha=alpha, gamma=gamma))  # TODO tune the parameters of A2C_Phil agents
     return A2C_agents
 
 def make_all_agents_learn(observations, new_observations, rewards, dones, infos, A2C_agents):

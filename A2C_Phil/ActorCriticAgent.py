@@ -2,13 +2,13 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
-from A2C.ActorCriticModel import ActorCriticNetwork
+from A2C_Phil.ActorCriticModel import ActorCriticNetwork
 
 from social_dilemma.environment.agent import HARVEST_ACTIONS
 
 class Agent():
     """
-    A2C Agent
+    A2C_Phil Agent
     """
     def __init__(self, 
                  alpha=0.0003, gamma=0.99
@@ -26,7 +26,7 @@ class Agent():
 
     def choose_action(self, observation):
         """
-        Choose the action with highest estimated probability by the A2C neuronal network
+        Choose the action with highest estimated probability by the A2C_Phil neuronal network
         :param observation: the observation of the agent
         :return: the action of the agent (between 0 and 7)
         """
