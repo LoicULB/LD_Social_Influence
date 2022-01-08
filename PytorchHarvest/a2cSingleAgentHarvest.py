@@ -146,9 +146,7 @@ def get_smoothed_rewards(all_rewards):
     return smoothed_rewards
 
 
-def plot_episode_length_evolution(all_lengths, average_lengths, GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
-
-
+def plot_episode_length_evolution(all_lengths, average_lengths):
     plt.plot(all_lengths)
     plt.plot(average_lengths)
     plt.xlabel('Episode')
@@ -156,9 +154,17 @@ def plot_episode_length_evolution(all_lengths, average_lengths, GAMMA, num_steps
     plt.show()
 
 
-def plot_rewards_evolution(all_rewards, smoothed_rewards,GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
+def plot_rewards_evolution(all_rewards, smoothed_rewards):
+    plt.plot(all_rewards)
+    plt.plot(smoothed_rewards)
+    plt.plot()
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.show()
+
+def plot_rewards_evolution(all_rewards, smoothed_rewards, GAMMA, num_steps, max_episodes,learning_rate, hidden_size):
     plt.title(
-        f"G : {GAMMA} | n steps : {num_steps} | epi : {max_episodes} | lr : {learning_rate} | hs : {hidden_size}")
+        f"Gamma : {GAMMA} | n steps : {num_steps} \n learning rate : {learning_rate} | hidden size : {hidden_size}")
     plt.plot(all_rewards)
     plt.plot(smoothed_rewards)
     plt.plot()
