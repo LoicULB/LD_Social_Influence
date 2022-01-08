@@ -18,12 +18,12 @@ the paper
 To be able to run our multiple programs : follow the instructions
 > git clone https://github.com/LoicULB/LD_Social_Influence.git \
 > cd LD_Social_Influence
-
-Now, either create a new virtual environment via Pycharm or other IDEA that have the same functionality or you can do it 
-manually like the following :
 > python3 -m venv LD_A2C_Env \
 > . LD_A2C_Env/bin/activate \
 > pip install -r requirements.txt
+
+(If you want, you can create the virtual environment directly in Pycharms)
+
 
 
 Now you can launch all our implementions that do not have dependency with the original paper's code.
@@ -66,9 +66,9 @@ python3 train.py
 
 If after launching python3 train.py, you have import errors , with "requests" for exemple, pip install those modules and 
 it should work at the end. If the error given is from "a3c.optimizer", then try to launch train.py via an IDEA such as 
-Pycharms.
+Pycharms. \
 Once you see that train.py seems to run, you can kill the process and follows the instruction of the custom_train.py 
-section.
+section. \
 If it still do not work, you can contact the following mail address : Loic.Quivron@ulb.be and we will try to help you
 if possible
 ### custom_train.py
@@ -97,22 +97,39 @@ This directory was used to contain the implementation of the A2C learning algori
 https://towardsdatascience.com/understanding-actor-critic-methods-931b97b6df3f
 
 It did perform well on CartPole and by executing the main.py file, you will see the training of an A2C agent on the
-CartPole environment (this is the file used to compute figure XXX from our paper)
+CartPole environment (this is the file used to compute figure 1 from our paper)
 
 > python3 PytorchCartPole/main.py
 
 ### PytorchHarvest 
-This directory contains our adaptation of the previous code to the Harves Environment. We have a single agent version and
+This directory contains our adaptation of the previous code to the Harvest Environment. We have a single agent version and
 a multi agent one.
+A hyperparameter.py can be found, it contains some hyper parameters values that we used to test our A2C. 
+To launch a run :
+> python3 PytorchHarvest/tuning.py
 
-TODO
-### Run
-The files that we will use to train our agents
-TODO
+You can change the hyperparameters in the file.
+The MultiAgent directory has the same stucture. To test it :
+> python3 PytorchHarvest/MultiAgent/mainMultiagent.py
+
+Change the number of agents and hyper parameters directly in the code
+
+For the two aforementioned scripts, you can choose to print the image of the environment by setting the render_env 
+variable to True.
+
+
+
 
 ### rayTuto
 Used to have a simple example on how to use RLlib A2C implementation
-TODO
+By running
+> python3 rayTuto/main.py 
 
+An A2C agent will train itself on 100 episode. A mean reward and mean episode length will be prompted
+Also, if you let the render_env parameter to True in the config, a video of the training will play in real time
+### Run
+Directory containing the main file to launch our first A2C implementation (the one based on Phil's code, using Keras)
+> python3 run/main.py
 ### custom_training.py file
-TODO
+This file containing our implementation that use the neural network baseline model from the original paper code and the
+A2C and A3C algorithm from RLlib. See Setup section to see how to use it
